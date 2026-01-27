@@ -87,23 +87,36 @@ class _ExpensesTable extends StatelessWidget {
             color: Colors.white,
             borderRadius: BorderRadius.circular(12),
           ),
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: DataTable(
-              headingRowHeight: 48,
-              dataRowHeight: 52,
-              columns: const [
-                DataColumn(label: Text('Title')),
-                DataColumn(label: Text('Category')),
-                DataColumn(label: Text('Date')),
-                DataColumn(label: Text('Amount')),
-                DataColumn(label: Text('Actions')),
-              ],
-              rows: expenses
-                  .map((e) => _ExpenseRow.fromEntity(e, context))
-                  .toList(),
-            ),
-          ),
+          child: Column(
+            children: [
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: _ExpensesTableHeader(),
+              ),
+              const Divider(height: 1),
+              Expanded(
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.vertical,
+                    child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: DataTable(
+                          headingRowHeight: 0, // hide header
+                          dataRowHeight: 52,
+                          columns: const [
+                            DataColumn(label: SizedBox()),
+                            DataColumn(label: SizedBox()),
+                            DataColumn(label: SizedBox()),
+                            DataColumn(label: SizedBox()),
+                            DataColumn(label: SizedBox()),
+                          ],
+                          rows: expenses
+                              .map((e) => _ExpenseRow.fromEntity(e, context))
+                              .toList(),
+                        ))
+                  )
+              )
+            ],
+          )
         );
       },
     );
@@ -146,6 +159,24 @@ class _ExpenseRow extends DataRow {
           ),
         ],
       );
+}
+
+class _ExpensesTableHeader extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return DataTable(
+      headingRowHeight: 48,
+      dataRowHeight: 0, // 👈 important: no rows
+      columns: const [
+        DataColumn(label: SizedBox(width: 220,child:Text('Description'))),
+        DataColumn(label: SizedBox(width: 140,child:Text('Category'))),
+        DataColumn(label: SizedBox(width: 120,child:Text('Date'))),
+        DataColumn(label: SizedBox(width: 120,child:Text('Amount'))),
+        DataColumn(label: SizedBox(width: 120,child:Text('Actions'))),
+      ],
+      rows: const [],
+    );
+  }
 }
 
 Future<void> showAddExpenseDialog(BuildContext context, {ExpensesEntity? expense}) async {

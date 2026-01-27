@@ -201,6 +201,7 @@ class _CategoriesTable extends StatelessWidget {
             _CategoryRow(name: 'Bills', color: Colors.yellow.shade700),
             _CategoryRow(name: 'Entertainment', color: Colors.blue),
             _CategoryRow(name: 'Transport', color: Colors.purpleAccent),
+
           ],
         ),
       ),
