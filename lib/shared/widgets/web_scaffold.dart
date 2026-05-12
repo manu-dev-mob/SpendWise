@@ -14,10 +14,18 @@ class WebScaffold extends StatefulWidget {
 
 class _WebScaffoldState extends State<WebScaffold> {
   bool _sidebarOpen = false;
+  User? user;
+  String? photoUrl;
+
+  @override
+  void initState() {
+    super.initState();
+    user = FirebaseAuth.instance.currentUser;
+    photoUrl = user?.photoURL;
+  }
 
   @override
   Widget build(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser;
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6FA),
       appBar: AppBar(
@@ -29,20 +37,20 @@ class _WebScaffoldState extends State<WebScaffold> {
               child: Row(
                 children: [
                   CircleAvatar(
-                    backgroundImage: user.photoURL != null
-                        ? NetworkImage(user.photoURL!)
+                    backgroundImage: photoUrl != null
+                        ? NetworkImage(photoUrl!)
                         : null,
-                    child: user.photoURL == null
+                    child: photoUrl == null
                         ? Text(
-                            user.displayName != null
-                                ? user.displayName![0]
-                                : user.email![0],
+                            user!.displayName != null
+                                ? user!.displayName![0]
+                                : user!.email![0],
                           )
                         : null,
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    user.displayName ?? user.email ?? 'User',
+                    user!.displayName ?? user!.email ?? 'User',
                     style: const TextStyle(fontSize: 16),
                   ),
                 ],
@@ -129,6 +137,14 @@ class _Sidebar extends StatelessWidget {
           _NavItem(
             icon: Icons.analytics,
             label: 'Analytics',
+            onTap: () {
+              context.go('/analytics');
+              onNavigate();
+            },
+          ),
+          _NavItem(
+            icon: Icons.list,
+            label: 'Ledger',
             onTap: () {
               context.go('/analytics');
               onNavigate();

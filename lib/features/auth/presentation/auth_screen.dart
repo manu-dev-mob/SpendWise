@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -45,6 +46,9 @@ class _AuthScreenState extends State<AuthScreen> {
         return;
       }
       setState(() => _loading = false);
+      if(mounted){
+        context.go('/dashboard');
+      }
     } catch (e) {
       setState(() {
         _error = 'Login failed: ${e.toString()}';

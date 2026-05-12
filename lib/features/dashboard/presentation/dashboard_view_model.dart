@@ -41,7 +41,7 @@ class DashboardViewModel extends ChangeNotifier{
     final now = DateTime.now();
     _monthlyExpenses = _allExpenses.where((e) =>
     e.date.year == now.year && e.date.month == now.month).toList();
-    _overallTotal = _allExpenses.fold(0,
+    _overallTotal = _monthlyExpenses.fold(0,
         (sum, e) => sum + e.amount,
     );
     _monthlyTotal = _monthlyExpenses.fold(0,
