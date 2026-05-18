@@ -1,5 +1,6 @@
 import 'package:expense_web/features/analytics/presentation/analytics_screen.dart';
 import 'package:expense_web/features/dashboard/presentation/dashboard_screen.dart';
+import 'package:expense_web/features/ledger/presentation/ledger_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
 import '../features/auth/presentation/auth_screen.dart';
@@ -53,7 +54,7 @@ final GoRouter appRouter = GoRouter(
       path: '/ledger',
       name: 'ledger',
       pageBuilder: (context, state) =>
-      const NoTransitionPage(child: AnalyticsScreen()),
+      const NoTransitionPage(child: LedgerScreen()),
     ),
   ],
 );

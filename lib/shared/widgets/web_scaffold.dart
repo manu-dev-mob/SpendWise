@@ -146,7 +146,7 @@ class _Sidebar extends StatelessWidget {
             icon: Icons.list,
             label: 'Ledger',
             onTap: () {
-              context.go('/analytics');
+              context.go('/ledger');
               onNavigate();
             },
           ),

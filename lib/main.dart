@@ -28,34 +28,4 @@ class ExpenseWebApp extends StatelessWidget {
       routerConfig: appRouter,
     );
   }}
-  // @override
-  // Widget build(BuildContext context) {
-  //   return MaterialApp.router(
-  //     title: 'Expense Tracker',
-  //     debugShowCheckedModeBanner: false,
-  //     theme: ThemeData(
-  //       useMaterial3: true,
-  //       scaffoldBackgroundColor: const Color(0xFFF5F6FA),
-  //     ),
-  //     routerConfig: appRouter,
-  //     builder: (context, child) {
-  //       return StreamBuilder<User?>(
-  //         stream: FirebaseAuth.instance.authStateChanges(),
-  //         builder: (context, snapshot) {
-  //           if (snapshot.connectionState == ConnectionState.waiting) {
-  //             return const Center(child: CircularProgressIndicator());
-  //           }
-  //           final user = snapshot.data;
-  //           if (user == null) {
-  //             // User not logged in → show AuthScreen
-  //             return const AuthScreen();
-  //           } else {
-  //             // User is logged in → show normal routed app
-  //             return child!;
-  //           }
-  //         },
-  //       );
-  //     },
-  //   );
-  // }
 
