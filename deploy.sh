@@ -1,27 +1,25 @@
 #!/bin/bash
 
-# Step 1: Build Flutter web
+# Step 1: Get latest code first
+echo "Pulling latest changes..."
+git pull origin main --no-rebase || { echo "Git pull failed! Exiting."; exit 1; }
+
+# Step 2: Build Flutter web
 echo "Building Flutter web..."
 flutter build web || { echo "Flutter build failed! Exiting."; exit 1; }
 
-# Step 2: Deploy to Firebase Hosting
+# Step 3: Deploy to Firebase Hosting
 echo "Deploying to Firebase Hosting..."
 firebase deploy --only hosting || { echo "Firebase deploy failed! Exiting."; exit 1; }
 
-# Step 3: Git push
+# Step 4: Commit changes
 echo "Enter your Git commit message:"
 read commit_msg
 
-# Stage changes
 git add .
-
-# Commit with the message provided by user
 git commit -m "$commit_msg"
 
-# Pull latest remote changes first to avoid conflicts
-git pull origin main --no-rebase
-
-# Push to GitHub
-git push
+# Step 5: Push
+git push origin main
 
 echo "✅ Deployment complete!"
