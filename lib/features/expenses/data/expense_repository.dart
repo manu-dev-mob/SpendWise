@@ -13,19 +13,32 @@ class ExpenseRepository {
 
   CollectionReference<Map<String, dynamic>> get _expensesRef =>
       _firestore.collection('expenses');
-
-  Stream<List<ExpensesEntity>> watchExpenses() {
+  bool selected = false;
+  Stream<List<ExpensesEntity>> watchExpenses({
+    int? year,
+    int? month,
+    String? category,
+  }) {
     return _expensesRef
         .orderBy('date', descending: true)
         .snapshots()
-        .map(
-          (snapshot) => snapshot.docs
-              .map((doc) => ExpensesEntity.fromFirestore(doc))
-              .toList(),
-        );
+        .map((snapshot) {
+      final expenses = snapshot.docs
+          .map((doc) => ExpensesEntity.fromFirestore(doc))
+          .toList();
+
+      return expenses.where((e) {
+        final matchYear = year == null || e.date.year == year;
+        final matchMonth = month == null || e.date.month == month;
+        final matchCategory =
+            category == null || category == 'All' ||
+                e.categoryId == category;
+        return matchYear && matchMonth && matchCategory;
+      }).toList();
+    });
   }
 
-  Future<void> addExpense({
+  Future<String> addExpense({
     required double amount,
     required String categoryId,
     required DateTime date,
@@ -37,29 +50,44 @@ class ExpenseRepository {
     }
     final now = DateTime.now();
 
-    await _expensesRef.add({
-      'amount': amount,
-      'categoryId': categoryId,
-      'date': Timestamp.fromDate(date),
-      'description': description,
-      'createdBy': user.email,
-      'createdAt': Timestamp.fromDate(now),
-      'updatedAt': Timestamp.fromDate(now),
-    });
+    try {
+      await _expensesRef.add({
+        'amount': amount,
+        'categoryId': categoryId,
+        'date': Timestamp.fromDate(date),
+        'description': description,
+        'createdBy': user.email,
+        'createdAt': Timestamp.fromDate(now),
+        'updatedAt': Timestamp.fromDate(now),
+      });
+      return "Expense Added Successfully";
+    } catch (e) {
+      return "Failed to add expense";
+    }
   }
 
-  Future<void> updateExpense(ExpensesEntity expense) async {
-    await _expensesRef.doc(expense.id).update({
-      'amount': expense.amount,
-      'categoryId': expense.categoryId,
-      'date': Timestamp.fromDate(expense.date),
-      'description': expense.description,
-      'createdBy': expense.createdBy,
-      'updatedAt': Timestamp.fromDate(DateTime.now()),
-    });
+  Future<String> updateExpense(ExpensesEntity expense) async {
+    try {
+      await _expensesRef.doc(expense.id).update({
+        'amount': expense.amount,
+        'categoryId': expense.categoryId,
+        'date': Timestamp.fromDate(expense.date),
+        'description': expense.description,
+        'createdBy': expense.createdBy,
+        'updatedAt': Timestamp.fromDate(DateTime.now()),
+      });
+      return "Expense updated Successfully";
+    } catch (e) {
+      return "Failed to update expense";
+    }
   }
 
-  Future<void> deleteExpense(String expenseId) async {
-    await _expensesRef.doc(expenseId).delete();
+  Future<String> deleteExpense(String expenseId) async {
+    try {
+      await _expensesRef.doc(expenseId).delete();
+      return "Expense deleted Successfully";
+    } catch (e) {
+      return "Failed to delete expense";
+    }
   }
 }
