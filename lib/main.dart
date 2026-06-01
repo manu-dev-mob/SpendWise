@@ -1,10 +1,11 @@
+import 'package:expense_web/core/theme/app_theme.dart';
+import 'package:expense_web/core/theme/theme_provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'app/providers.dart';
 import 'app/router.dart';
-import 'features/auth/presentation/auth_screen.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -16,16 +17,18 @@ void main() async {
 
 class ExpenseWebApp extends StatelessWidget {
   const ExpenseWebApp({super.key});
+
   @override
   Widget build(BuildContext context) {
+    final themeProvider = context.watch<ThemeProvider>();
     return MaterialApp.router(
-      title: 'Expense Tracker',
+      title: 'SpendWise',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: true,
-        scaffoldBackgroundColor: const Color(0xFFF5F6FA),
-      ),
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: themeProvider.themeMode,
       routerConfig: appRouter,
     );
-  }}
+  }
+}
 

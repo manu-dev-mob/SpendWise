@@ -1,4 +1,6 @@
 import 'package:expense_web/shared/widgets/web_scaffold.dart';
+import 'package:expense_web/shared/widgets/hover_card.dart';
+import 'package:expense_web/shared/widgets/category_badge.dart';
 import 'package:flutter/material.dart';
 
 class CategoriesScreen extends StatelessWidget {
@@ -16,16 +18,18 @@ class CategoriesScreen extends StatelessWidget {
               : maxWidth > 900
               ? 900
               : maxWidth;
-          // print('screensize : $maxWidth $contentWidth');
+
           return Center(
             child: ConstrainedBox(
               constraints: BoxConstraints(maxWidth: contentWidth),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _Header(),
+                  const _Header(),
                   const SizedBox(height: 24),
-                  Expanded(child: _CategoriesTable()),
+                  Expanded(
+                    child: _CategoriesTable(),
+                  ),
                 ],
               ),
             ),
@@ -37,7 +41,7 @@ class CategoriesScreen extends StatelessWidget {
 }
 
 class _Header extends StatelessWidget {
-  const _Header({super.key});
+  const _Header();
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +50,7 @@ class _Header extends StatelessWidget {
       children: [
         const Text(
           'Manage Categories',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, letterSpacing: 0.5),
         ),
         ElevatedButton.icon(
           onPressed: () {
@@ -55,7 +59,7 @@ class _Header extends StatelessWidget {
               builder: (_) => const _AddCategoryDialog(),
             );
           },
-          icon: const Icon(Icons.add),
+          icon: const Icon(Icons.add_rounded),
           label: const Text('Add Category'),
         ),
       ],
@@ -64,7 +68,7 @@ class _Header extends StatelessWidget {
 }
 
 class _AddCategoryDialog extends StatefulWidget {
-  const _AddCategoryDialog({super.key});
+  const _AddCategoryDialog();
 
   @override
   State<_AddCategoryDialog> createState() => _AddCategoryDialogState();
@@ -72,54 +76,52 @@ class _AddCategoryDialog extends StatefulWidget {
 
 class _AddCategoryDialogState extends State<_AddCategoryDialog> {
   final _nameController = TextEditingController();
-  Color _selectedColor = Colors.blue;
+  Color _selectedColor = const Color(0xFF6366F1); // Default to brand primary
+
+  final List<Color> _colorOptions = [
+    const Color(0xFF10B981), // Green
+    const Color(0xFFF59E0B), // Orange
+    const Color(0xFF6366F1), // Indigo
+    const Color(0xFF8B5CF6), // Purple
+    const Color(0xFFEF4444), // Red
+    const Color(0xFF06B6D4), // Cyan
+  ];
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text('Add Category'),
+      title: const Text('Add Category'),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       content: SizedBox(
         width: 360,
         child: Column(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const SizedBox(height: 8),
             TextField(
               controller: _nameController,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'Category Name',
-                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.label_rounded),
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 20),
+            const Text(
+              'Select Color Theme',
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
             Wrap(
-              spacing: 8,
-              children: [
-                _ColorDot(
-                  color: Colors.green,
+              spacing: 12,
+              runSpacing: 12,
+              children: _colorOptions.map((color) {
+                return _ColorDot(
+                  color: color,
                   selected: _selectedColor,
-                  onTap: _select,
-                ),
-                _ColorDot(
-                  color: Colors.orange,
-                  selected: _selectedColor,
-                  onTap: _select,
-                ),
-                _ColorDot(
-                  color: Colors.blue,
-                  selected: _selectedColor,
-                  onTap: _select,
-                ),
-                _ColorDot(
-                  color: Colors.purple,
-                  selected: _selectedColor,
-                  onTap: _select,
-                ),
-                _ColorDot(
-                  color: Colors.red,
-                  selected: _selectedColor,
-                  onTap: _select,
-                ),
-              ],
+                  onTap: (c) => setState(() => _selectedColor = c),
+                );
+              }).toList(),
             ),
           ],
         ),
@@ -136,12 +138,6 @@ class _AddCategoryDialogState extends State<_AddCategoryDialog> {
       ],
     );
   }
-
-  void _select(Color color) {
-    setState(() {
-      _selectedColor = color;
-    });
-  }
 }
 
 class _ColorDot extends StatelessWidget {
@@ -150,7 +146,6 @@ class _ColorDot extends StatelessWidget {
   final ValueChanged<Color> onTap;
 
   const _ColorDot({
-    super.key,
     required this.color,
     required this.selected,
     required this.onTap,
@@ -161,47 +156,70 @@ class _ColorDot extends StatelessWidget {
     final isSelected = color == selected;
     return GestureDetector(
       onTap: () => onTap(color),
-      child: Container(
-        width: 28,
-        height: 28,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        width: 36,
+        height: 36,
         decoration: BoxDecoration(
           color: color,
           shape: BoxShape.circle,
           border: Border.all(
-            color: isSelected ? Colors.transparent : Colors.black,
-            width: 2,
+            color: isSelected ? Colors.white : Colors.transparent,
+            width: 3,
           ),
+          boxShadow: [
+            BoxShadow(
+              color: color.withOpacity(0.4),
+              blurRadius: isSelected ? 8 : 2,
+              spreadRadius: isSelected ? 1 : 0,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
+        child: isSelected
+            ? const Icon(
+          Icons.check_rounded,
+          color: Colors.white,
+          size: 18,
+        )
+            : null,
       ),
     );
   }
 }
 
 class _CategoriesTable extends StatelessWidget {
-  const _CategoriesTable({super.key});
+  const _CategoriesTable();
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: DataTable(
-          columns: const [
-            DataColumn(label: Text('Name')),
-            DataColumn(label: Text('Color')),
-            DataColumn(label: Text('Actions')),
-          ],
-          rows: [
-            _CategoryRow(name: 'Groceries', color: Colors.green),
-            _CategoryRow(name: 'Bills', color: Colors.yellow.shade700),
-            _CategoryRow(name: 'Entertainment', color: Colors.blue),
-            _CategoryRow(name: 'Transport', color: Colors.purpleAccent),
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
+    return HoverCard(
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Theme.of(context).dividerColor),
+        ),
+        child: Column(
+          children: [
+            _CategoriesTableHeader(),
+            const Divider(height: 24, thickness: 1.5),
+            Expanded(
+              child: ListView(
+                children: const [
+                  _CategoryRowWidget(name: 'Groceries', color: Color(0xFF10B981)),
+                  Divider(height: 12),
+                  _CategoryRowWidget(name: 'Bills', color: Color(0xFF8B5CF6)),
+                  Divider(height: 12),
+                  _CategoryRowWidget(name: 'Entertainment', color: Color(0xFFF59E0B)),
+                  Divider(height: 12),
+                  _CategoryRowWidget(name: 'Transport', color: Color(0xFF06B6D4)),
+                ],
+              ),
+            ),
           ],
         ),
       ),
@@ -209,32 +227,130 @@ class _CategoriesTable extends StatelessWidget {
   }
 }
 
-class _CategoryRow extends DataRow {
-  _CategoryRow({required String name, required Color color})
-    : super(
-        cells: [
-          DataCell(Text(name)),
-          DataCell(
-            Container(
-              width: 16,
-              height: 16,
-              decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+class _CategoryRowWidget extends StatelessWidget {
+  final String name;
+  final Color color;
+
+  const _CategoryRowWidget({required this.name, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+      child: Row(
+        children: [
+          // Name / Badge
+          Expanded(
+            flex: 5,
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: CategoryBadge(categoryId: name, fontSize: 13),
             ),
           ),
-          DataCell(
-            Row(
+
+          // Color Indicator
+          Expanded(
+            flex: 3,
+            child: Row(
               children: [
-                IconButton(
-                  onPressed: () {},
-                  icon: const Icon(Icons.edit, size: 18),
+                Container(
+                  width: 14,
+                  height: 14,
+                  decoration: BoxDecoration(
+                    color: color,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: color.withOpacity(0.3),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      )
+                    ],
+                  ),
                 ),
-                IconButton(
-                  onPressed: () {},
-                  icon: const Icon(Icons.delete, size: 18),
+                const SizedBox(width: 8),
+                // Text(
+                //   '#${color.value.toRadixString(16).substring(2, 8).toUpperCase()}',
+                //   style: TextStyle(
+                //     fontSize: 12,
+                //     fontWeight: FontWeight.w500,
+                //     color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
+                //   ),
+                // ),
+              ],
+            ),
+          ),
+
+          // Actions
+          SizedBox(
+            width: 100,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                CircleAvatar(
+                  radius: 16,
+                  backgroundColor: Colors.blue.withOpacity(0.1),
+                  child: IconButton(
+                    icon: const Icon(Icons.edit_rounded, size: 14, color: Colors.blue),
+                    onPressed: () {},
+                  ),
+                ),
+                const SizedBox(width: 8),
+                CircleAvatar(
+                  radius: 16,
+                  backgroundColor: Colors.red.withOpacity(0.1),
+                  child: IconButton(
+                    icon: const Icon(Icons.delete_rounded, size: 14, color: Colors.redAccent),
+                    onPressed: () {},
+                  ),
                 ),
               ],
             ),
           ),
         ],
-      );
+      ),
+    );
+  }
+}
+
+class _CategoriesTableHeader extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.grey.shade400 : Colors.grey.shade600;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 5,
+            child: Text(
+              'Category Name',
+              style: TextStyle(fontWeight: FontWeight.bold, color: textColor, fontSize: 13.5),
+            ),
+          ),
+          Expanded(
+            flex: 3,
+            child: Text(
+              'Color Accent',
+              style: TextStyle(fontWeight: FontWeight.bold, color: textColor, fontSize: 13.5),
+            ),
+          ),
+          const SizedBox(
+            width: 100,
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: Text(
+                'Actions',
+                style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey, fontSize: 13.5),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
