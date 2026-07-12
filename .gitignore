@@ -33,6 +33,9 @@ migrate_working_dir/
 .pub/
 /build/
 
+# Firebase generated options (keep it out of version control)
+**/firebase_options.dart
+
 # Symbolication related
 app.*.symbols
 
