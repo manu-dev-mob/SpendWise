@@ -33,8 +33,6 @@ class DashboardViewModel extends ChangeNotifier {
   List<ExpensesEntity> _recentExpenses = [];
 
   void _subscribe() {
-    _savePreviousMonthLedger();
-    // final now =DateTime.now();
     _sub = repo.watchExpenses().listen((expenses) {
       _allExpenses = expenses;
       _recalculate();
@@ -59,31 +57,37 @@ class DashboardViewModel extends ChangeNotifier {
           (_categoryTotals[e.categoryId] ?? 0) + e.amount;
     }
     _recentExpenses = _monthlyExpenses.take(5).toList();
-    _savePreviousMonthLedger();
+    _updateLedgers();
     notifyListeners();
   }
 
-  Future<void> _savePreviousMonthLedger() async {
-    final now = DateTime.now();
-    int previousMonth = now.month - 1;
-    int year = now.year;
-    if (previousMonth == 0) {
-      previousMonth = 12;
-      year--;
+  Future<void> _updateLedgers() async {
+    if(_allExpenses.isEmpty) return;
+    final Map<String, List<ExpensesEntity>> groupedExpenses ={};
+    for(final expense in _allExpenses){
+      final key = '${expense.date.year}-${expense.date.month}';
+      groupedExpenses.putIfAbsent(key, ()=> []);
+      groupedExpenses[key]!.add(expense);
     }
-    final previousMonthExpenses = _allExpenses.where((e) {
-      return e.date.year == year && e.date.month == previousMonth;
-    }).toList();
-    final previousMonthTotal = previousMonthExpenses.fold<double>(
-      0,
-      (sum, e) => sum + e.amount,
-    );
-    if (previousMonthTotal <= 0) return;
-    await _ledgerRepository.saveMonthlyLedger(
-      year: year,
-      month: previousMonth,
-      total: previousMonthTotal,
-    );
+    for (final entry in groupedExpenses.entries){
+      final expenses = entry.value;
+      final year = expenses.first.date.year;
+      final month = expenses.first.date.month;
+      final expenseCount = expenses.length;
+      final needsUpdate = await _ledgerRepository.ledgerNeedsUpdate(
+        year: year,
+        month: month,
+        expenseCount: expenseCount,
+      );
+      if (!needsUpdate) {
+        continue;
+      }
+      final total = expenses.fold<double>(
+        0,(sum, expense) => sum + expense.amount,
+      );
+      await _ledgerRepository.saveMonthlyLedger(year: year, month: month,
+          total: total,expenseCount: expenseCount);
+    }
   }
 
   @override

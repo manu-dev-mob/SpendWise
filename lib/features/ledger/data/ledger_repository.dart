@@ -10,20 +10,60 @@ class LedgerRepository {
     required int year,
     required int month,
     required double total,
+    required int expenseCount,
   }) async {
-    final existing = await _ledgerCollection
-        .where('year', isEqualTo: year)
-        .where('month', isEqualTo: month)
-        .limit(1).get();
-    if(existing.docs.isNotEmpty){
-      return;
-    }
-    await _ledgerCollection.add({
+    const months = [
+      '',
+      'JAN',
+      'FEB',
+      'MAR',
+      'APR',
+      'MAY',
+      'JUN',
+      'JUL',
+      'AUG',
+      'SEP',
+      'OCT',
+      'NOV',
+      'DEC',
+    ];
+    final docId = '${months[month]}${year.toString().substring(2)}';
+    await _ledgerCollection.doc(docId).set({
       'year': year,
       'month': month,
       'total': total,
+      'expenseCount': expenseCount,
       'createdAt': Timestamp.now(),
-    });
+    }, SetOptions(merge: true));
+  }
+  Future<bool> ledgerNeedsUpdate({
+    required int year,
+    required int month,
+    required int expenseCount,
+}) async {
+    const months = [
+      '',
+      'JAN',
+      'FEB',
+      'MAR',
+      'APR',
+      'MAY',
+      'JUN',
+      'JUL',
+      'AUG',
+      'SEP',
+      'OCT',
+      'NOV',
+      'DEC',
+    ];
+    final docId = '${months[month]}${year.toString().substring(2)}';
+    final doc = await _ledgerCollection.doc(docId).get();
+    if (!doc.exists) {
+      return true;
+    }
+    final data = doc.data() as Map<String, dynamic>;
+    final existingCount = data['expenseCount'] ?? 0;
+    return existingCount != expenseCount;
   }
   Future<List<MonthlyLedgerEntity>> fetchLedgerByYear(int year)async {
     final snapshot =await _ledgerCollection.where('year', isEqualTo: year).

@@ -6,6 +6,7 @@ import 'package:expense_web/shared/widgets/category_badge.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'pdf_import_button.dart';
 
 import '../data/expense_repository.dart';
 
@@ -175,6 +176,7 @@ class _Header extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
           ),
         ),
+        PdfImportButton(),
       ],
     );
   }
